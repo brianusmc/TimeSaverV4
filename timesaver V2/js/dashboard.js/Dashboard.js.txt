@@ -1,0 +1,124 @@
+const API_KEY = 'YOUR_COINBASE_API_KEY'; // {
+   "name": "organizations/8af9a26b-4b4c-415a-92e0-01141e0d4c98/apiKeys/eda611e9-60cb-4520-897f-7e1a6e5348cf",
+   "privateKey": "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEILb55KnTmKBTcsPIhd7bWIfzKw30Pxt1Jfw1dCEqnFrMoAoGCCqGSM49\nAwEHoUQDQgAEY2pt3tkL0SL5hWvc2soHljXHk8CmnlEig0EpTGnk9P0kTP78knmm\nxcuaiuQMTTGVJuHzOONaW4zhYdUUuVaymQ==\n-----END EC PRIVATE KEY-----\n"
+}
+const API_URL = 'https://api.coinbase.com/v2/';
+
+// Fetch wallet balance and update the display
+async function fetchWalletBalance() {
+    try {
+        const response = await fetch(`${API_URL}accounts`, {
+            headers: {
+                'Authorization': `Bearer ${API_KEY}`,
+            }
+        });
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+            const walletBalance = data.data[0].balance.amount; 
+            document.getElementById("wallet-balance").textContent = `$${parseFloat(walletBalance).toFixed(2)}`;
+        }
+    } catch (error) {
+        console.error('Error fetching wallet balance:', error);
+    }
+}
+
+// Fetch recent trades
+async function fetchRecentTrades() {
+    try {
+        // Example mock trades for demonstration
+        const trades = [
+            "Bought BTC at $32,000",
+            "Sold ETH at $1,900",
+            "Bought XRP at $0.70",
+        ];
+        const tradesList = document.getElementById("trades-list");
+        tradesList.innerHTML = '';
+        trades.forEach(trade => {
+            let li = document.createElement("li");
+            li.textContent = trade;
+            tradesList.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Error fetching trades:', error);
+    }
+}
+
+// Fetch live market data for the trading chart
+async function fetchMarketData() {
+    try {
+        const response = await fetch('https://api.pro.coinbase.com/products/BTC-USD/candles?granularity=86400'); // 1-day candlesticks
+        const data = await response.json();
+        const prices = data.map(item => item[4]);
+        const times = data.map(item => new Date(item[0] * 1000).toLocaleDateString());
+
+        updateChart(times, prices);
+    } catch (error) {
+        console.error('Error fetching market data:', error);
+    }
+}
+
+// Update the trading chart with new data
+function updateChart(times, prices) {
+    const ctx = document.getElementById('trading-chart').getContext('2d');
+    const chartData = {
+        labels: times.reverse(),
+        datasets: [{
+            label: 'BTC Price',
+            data: prices.reverse(),
+            borderColor: 'rgba(255, 99, 132, 1)',
+            fill: false
+        }]
+    };
+
+    const chartConfig = {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+        },
+    };
+
+    const tradingChart = new Chart(ctx, chartConfig);
+    tradingChart.update();
+}
+
+// Update the dashboard every 15 seconds
+function updateDashboard() {
+    fetchWalletBalance();
+    fetchRecentTrades();
+    fetchMarketData();
+}
+
+// Refresh the dashboard manually
+function refreshData() {
+    updateDashboard();
+}
+
+// Switch between sections
+function showSection(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        section.style.display = section.id === sectionId ? 'block' : 'none';
+    });
+}
+
+// Open Coinbase Deposit Page
+function depositBTC() {
+    window.open('https://www.coinbase.com/', '_blank');
+}
+
+// Update settings
+function updateSettings() {
+    alert("Settings updated!");
+}
+
+// Initial call to update the dashboard
+updateDashboard();
+
+// Set the dashboard to auto-update every 15 seconds
+setInterval(updateDashboard, 15000);
