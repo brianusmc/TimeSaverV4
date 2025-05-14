@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TimeSaver V1 - Login</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login to TimeSaver V1</h2>
+    <input type="password" id="password" placeholder="Enter Password" />
+    <button onclick="checkPassword()">Login</button>
+    <p id="error-message" class="error">Incorrect password</p>
+    <p id="success-message" class="success">Login successful</p>
+    <div class="hamburger" onclick="toggleMenu()">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="menu" id="menu">
+      <a href="settings.html">Settings</a>
+      <a href="#">Help</a>
+      <a href="#">Log Out</a>
+    </div>
+  </div>
+  <script src="js/scripts.js"></script>
+</body>
+</html>
